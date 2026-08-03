@@ -388,6 +388,33 @@ if (window.mapboxgl && OCCAB_CONFIG.mapboxToken && OCCAB_CONFIG.mapboxToken.star
     }});
     map.addLayer({id:'corridor-line',type:'line',source:'corridor',
       paint:{'line-color':TEAL,'line-width':3,'line-dasharray':[2,2],'line-opacity':.85}});
+
+    // Tesla Robotaxi Service Areas
+    map.addSource('tesla-areas', {
+      type: 'geojson',
+      data: './tesla_areas.geojson'
+    });
+    
+    map.addLayer({
+      id: 'tesla-areas-fill',
+      type: 'fill',
+      source: 'tesla-areas',
+      paint: {
+        'fill-color': CYAN,
+        'fill-opacity': 0.15
+      }
+    });
+    
+    map.addLayer({
+      id: 'tesla-areas-line',
+      type: 'line',
+      source: 'tesla-areas',
+      paint: {
+        'line-color': CYAN,
+        'line-width': 1.5,
+        'line-dasharray': [2, 2]
+      }
+    });
   });
 } else {
   document.getElementById('map').innerHTML =
