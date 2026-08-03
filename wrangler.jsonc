@@ -1,10 +1,19 @@
 {
-  // OCcab marketing site + investor prospectus — static assets on Cloudflare Workers.
+  // OCcab site — static assets + investor-form API on Cloudflare Workers.
   // Deploy with: npx wrangler deploy
+  // Required before the contact form works (see README):
+  //   1. Fill in NOCODB_URL and NOCODB_TABLE_ID below
+  //   2. npx wrangler secret put NOCODB_API_TOKEN
   "name": "occab",
+  "main": "src/worker.js",
   "compatibility_date": "2026-08-01",
   "assets": {
     "directory": "./public",
+    "binding": "ASSETS",
     "not_found_handling": "404-page"
+  },
+  "vars": {
+    "NOCODB_URL": "",
+    "NOCODB_TABLE_ID": ""
   }
 }

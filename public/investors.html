@@ -109,6 +109,16 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .outs .d{font-size:12.5px;margin-top:6px;color:var(--muted)}
 .reset{font-size:13.5px}
 
+.fld label{display:block;font-size:13.5px;color:var(--ink-2);margin-bottom:6px;font-weight:600}
+.fld input,.fld select,.fld textarea{width:100%;background:var(--bg);color:var(--ink);border:1px solid var(--baseline);border-radius:8px;padding:10px 12px;font:inherit;font-size:14.5px}
+.fld input:focus,.fld select:focus,.fld textarea:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
+.hp{position:absolute;left:-9999px;top:auto}
+form.controls{position:relative;gap:16px}
+form.controls .btn{border:0;cursor:pointer;width:max-content}
+.formmsg{font-size:14px;margin:0;min-height:1em}
+.formmsg.ok{color:var(--accent)}
+.formmsg.err{color:#d03b3b}
+
 .risk ol{padding-left:20px;display:grid;gap:12px;color:var(--ink-2);font-size:15px;max-width:78ch}
 .risk strong{color:var(--ink)}
 .disclaimer{margin-top:36px;padding:20px 24px;border:1px solid var(--border);border-radius:12px;background:var(--surface);font-size:13px;color:var(--muted);max-width:none}
@@ -138,7 +148,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
     <a href="#opex">Operating costs</a>
     <a href="#payback">Payback</a>
     <a href="#calculator">Calculator</a>
-    <a class="btn" href="mailto:dave@rodecker.com?subject=OCcab%20Fleet%20I">Talk to us</a>
+    <a class="btn" href="#contact">Talk to us</a>
   </div>
 </nav></div></header>
 
@@ -256,19 +266,44 @@ footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
   </div>
 </div></section>
 
-<section><div class="wrap">
-  <div class="cta-band">
-    <div>
-      <h2>Want the full data room?</h2>
-      <p>Assumption sources, quotes, and the operating plan behind this model.</p>
+<section id="contact"><div class="wrap">
+  <h2><span class="no">07</span>Join the investor list</h2>
+  <p class="sub">Interested in Fleet I? Leave your details and we'll follow up with the full data room — assumption sources, quotes, and the operating plan behind this model.</p>
+  <div class="calc">
+    <form class="controls" id="investForm" novalidate>
+      <div class="fld"><label for="fName">Name *</label>
+        <input type="text" id="fName" name="name" autocomplete="name" required maxlength="200"></div>
+      <div class="fld"><label for="fEmail">Email *</label>
+        <input type="email" id="fEmail" name="email" autocomplete="email" required maxlength="320"></div>
+      <div class="fld"><label for="fCompany">Company or fund</label>
+        <input type="text" id="fCompany" name="company" autocomplete="organization" maxlength="200"></div>
+      <div class="fld"><label for="fRange">Indicative interest</label>
+        <select id="fRange" name="range">
+          <option value="">Prefer not to say</option>
+          <option>Under $25K</option>
+          <option>$25K – $100K</option>
+          <option>$100K – $250K</option>
+          <option>$250K+</option>
+        </select></div>
+      <div class="fld"><label for="fMsg">Message</label>
+        <textarea id="fMsg" name="message" rows="4" maxlength="4000" placeholder="Questions about the model, timing, or terms…"></textarea></div>
+      <div class="hp" aria-hidden="true"><label for="fWeb">Website</label>
+        <input type="text" id="fWeb" name="website" tabindex="-1" autocomplete="off"></div>
+      <button class="btn" type="submit" id="fSubmit">Request data room access</button>
+      <p class="formmsg" id="fStatus" role="status"></p>
+    </form>
+    <div class="cta-band" style="align-content:center">
+      <div>
+        <h2>What you'll get</h2>
+        <p style="margin-top:10px">The complete data room behind this prospectus: vendor quotes for insurance and depot leasing, energy tariff detail, the utilization ramp plan, and the definitive offering documents when the round opens. Submissions go straight to our investor pipeline — no inbox black holes.</p>
+      </div>
     </div>
-    <a class="btn" href="mailto:dave@rodecker.com?subject=OCcab%20Fleet%20I%20—%20Investor%20inquiry">Request access</a>
   </div>
 </div></section>
 
 <footer><div class="wrap">
   <div>© 2026 OCcab. Orange County, California.</div>
-  <div><a href="/">Home</a> · <a href="mailto:dave@rodecker.com">Contact</a></div>
+  <div><a href="/">Home</a> · <a href="#contact">Contact</a></div>
 </div></footer>
 
 <div class="tip" id="tip"></div>
@@ -650,6 +685,38 @@ txt($('revSummary'),
     update();
   });
   update();
+})();
+
+/* ============ investor form ============ */
+(function () {
+  const form = $('investForm'), status = $('fStatus'), btn = $('fSubmit');
+  form.addEventListener('submit', async ev => {
+    ev.preventDefault();
+    status.className = 'formmsg';
+    if (!form.reportValidity()) return;
+    btn.disabled = true;
+    txt(status, 'Sending…');
+    try {
+      const res = await fetch('/api/investors', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(Object.fromEntries(new FormData(form).entries())),
+      });
+      const out = await res.json().catch(() => ({}));
+      if (res.ok && out.ok) {
+        status.className = 'formmsg ok';
+        txt(status, 'Thanks — you’re on the list. We’ll be in touch shortly.');
+        form.reset();
+      } else {
+        status.className = 'formmsg err';
+        txt(status, out.error || 'Something went wrong — please try again.');
+      }
+    } catch {
+      status.className = 'formmsg err';
+      txt(status, 'Network error — please try again.');
+    }
+    btn.disabled = false;
+  });
 })();
 
 /* ============ tooltip ============ */
