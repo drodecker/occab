@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OCcab — Autonomous rides across Orange County</title>
+<meta name="description" content="OCcab operates a fleet of Tesla robotaxis serving Orange County, California. Safe, electric, driverless rides — and a fleet economics model built for investors.">
+<style>
+:root{
+  color-scheme: light dark;
+  --bg:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
+  --hairline:#e1e0d9; --border:rgba(11,11,11,.10);
+  --accent:#2a78d6; --accent-strong:#1c5cab; --accent-wash:rgba(42,120,214,.08);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0d0d0d; --surface:#1a1a19; --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
+    --hairline:#2c2c2a; --border:rgba(255,255,255,.10);
+    --accent:#3987e5; --accent-strong:#6da7ec; --accent-wash:rgba(57,135,229,.12);
+  }
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+
+/* nav */
+header{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--hairline)}
+nav{display:flex;align-items:center;justify-content:space-between;height:64px}
+.logo{font-weight:800;font-size:20px;letter-spacing:-.02em;color:var(--ink)}
+.logo span{color:var(--accent)}
+.navlinks{display:flex;gap:28px;align-items:center;font-size:15px}
+.navlinks a{color:var(--ink-2)}
+.navlinks a:hover{color:var(--ink);text-decoration:none}
+.btn{display:inline-block;background:var(--accent);color:#fff;padding:10px 20px;border-radius:8px;font-weight:600;font-size:15px}
+.btn:hover{background:var(--accent-strong);text-decoration:none;color:#fff}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+.btn.ghost:hover{background:var(--accent-wash);color:var(--accent)}
+
+/* hero — deliberately dark in both themes */
+.hero{background:linear-gradient(160deg,#0c1424 0%,#0d1f3c 55%,#123055 100%);color:#fff;padding:96px 0 88px;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;inset:auto -10% -55% -10%;height:70%;background:radial-gradient(60% 100% at 50% 100%,rgba(57,135,229,.35),transparent 70%)}
+.hero .wrap{position:relative;z-index:1}
+.kicker{display:inline-block;font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#86b6ef;margin-bottom:18px}
+h1{font-size:clamp(34px,5.5vw,58px);line-height:1.08;letter-spacing:-.03em;font-weight:800;max-width:15ch}
+.hero p.lede{margin:22px 0 34px;font-size:19px;color:#c9d6ea;max-width:52ch}
+.hero .cta{display:flex;gap:14px;flex-wrap:wrap}
+.hero .btn.ghost{color:#9ec5f4;border-color:rgba(158,197,244,.5)}
+.hero .btn.ghost:hover{background:rgba(158,197,244,.12);color:#c9d6ea}
+
+/* stat strip */
+.strip{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--hairline);border:1px solid var(--hairline);border-radius:12px;overflow:hidden;margin:-44px auto 0;position:relative;z-index:2;max-width:1032px}
+.strip>div{background:var(--surface);padding:22px 24px}
+.strip .v{font-size:28px;font-weight:700;letter-spacing:-.02em}
+.strip .l{font-size:13px;color:var(--muted);margin-top:2px}
+
+section{padding:76px 0}
+h2{font-size:clamp(26px,3.5vw,36px);letter-spacing:-.02em;font-weight:800;margin-bottom:12px}
+.sub{color:var(--ink-2);font-size:17px;max-width:60ch;margin-bottom:40px}
+
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px}
+.card .ic{width:44px;height:44px;border-radius:10px;background:var(--accent-wash);display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.card h3{font-size:18px;margin-bottom:8px;letter-spacing:-.01em}
+.card p{color:var(--ink-2);font-size:15px}
+
+/* fleet */
+.fleet{background:var(--surface);border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline)}
+.split{display:grid;grid-template-columns:1.1fr .9fr;gap:56px;align-items:center}
+.speclist{list-style:none;display:grid;gap:14px;margin-top:8px}
+.speclist li{display:flex;gap:12px;align-items:baseline;color:var(--ink-2);font-size:15.5px}
+.speclist li::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent);flex:none;transform:translateY(-1px)}
+.speclist strong{color:var(--ink)}
+.carviz{background:linear-gradient(160deg,#0c1424,#123055);border-radius:16px;padding:36px;display:flex;align-items:center;justify-content:center}
+.carviz svg{width:100%;max-width:380px;height:auto}
+
+/* cities */
+.chips{display:flex;flex-wrap:wrap;gap:10px}
+.chip{border:1px solid var(--border);background:var(--surface);border-radius:999px;padding:8px 16px;font-size:14.5px;color:var(--ink-2)}
+
+/* investor band */
+.invest{background:linear-gradient(160deg,#0c1424,#0d1f3c);color:#fff;border-radius:18px;padding:52px;display:grid;grid-template-columns:1.2fr .8fr;gap:40px;align-items:center}
+.invest h2{color:#fff}
+.invest p{color:#c9d6ea;font-size:16.5px}
+.invest .nums{display:grid;gap:18px}
+.invest .n .v{font-size:32px;font-weight:800;letter-spacing:-.02em;color:#fff}
+.invest .n .l{font-size:13.5px;color:#86b6ef}
+
+footer{border-top:1px solid var(--hairline);padding:40px 0;color:var(--muted);font-size:14px}
+footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+
+@media (max-width:840px){
+  .strip{grid-template-columns:repeat(2,1fr)}
+  .cards{grid-template-columns:1fr}
+  .split,.invest{grid-template-columns:1fr}
+  .navlinks{display:none}
+}
+</style>
+</head>
+<body>
+
+<header><div class="wrap"><nav>
+  <a class="logo" href="/">OC<span>cab</span></a>
+  <div class="navlinks">
+    <a href="#fleet">Fleet</a>
+    <a href="#service">Service area</a>
+    <a href="/investors.html">Investors</a>
+    <a class="btn" href="/investors.html">View the prospectus</a>
+  </div>
+</nav></div></header>
+
+<div class="hero"><div class="wrap">
+  <span class="kicker">Autonomous mobility · Orange County, CA</span>
+  <h1>Driverless rides. Around the clock.</h1>
+  <p class="lede">OCcab is launching a 10-vehicle fleet of Tesla robotaxis serving Orange County — electric, depot-charged, professionally maintained, and available 24/7. A ride network without drivers changes the cost of every mile.</p>
+  <div class="cta">
+    <a class="btn" href="/investors.html">Investor prospectus</a>
+    <a class="btn ghost" href="#fleet">Meet the fleet</a>
+  </div>
+</div></div>
+
+<div class="wrap">
+  <div class="strip" role="list">
+    <div role="listitem"><div class="v">10</div><div class="l">Tesla robotaxis in Fleet I</div></div>
+    <div role="listitem"><div class="v">24/7</div><div class="l">Service availability</div></div>
+    <div role="listitem"><div class="v">100%</div><div class="l">Electric, depot-charged</div></div>
+    <div role="listitem"><div class="v">~10 mo</div><div class="l">Modeled capital payback</div></div>
+  </div>
+</div>
+
+<section><div class="wrap">
+  <h2>Why a robotaxi fleet works</h2>
+  <p class="sub">Remove the driver and a taxi stops being a job and becomes an asset. Each vehicle earns around the clock while costs stay flat and predictable.</p>
+  <div class="cards">
+    <div class="card">
+      <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+      <h3>Earns while others sleep</h3>
+      <p>No shifts, no driver fatigue. Vehicles serve late-night airport runs and early commutes — the hours human-driven fleets leave on the table.</p>
+    </div>
+    <div class="card">
+      <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg></div>
+      <h3>Pennies per mile</h3>
+      <p>Off-peak depot charging costs a fraction of gasoline, and EV drivetrains cut maintenance to tires and wipers. Energy runs about 5–6 cents per mile.</p>
+    </div>
+    <div class="card">
+      <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3 8l9 5 9-5-9-5z"/><path d="M3 13l9 5 9-5"/></svg></div>
+      <h3>Built to scale</h3>
+      <p>Fleet I is 10 vehicles on one depot. The playbook — vehicles, charging, cleaning, insurance, dispatch — repeats city by city as regulation opens.</p>
+    </div>
+  </div>
+</div></section>
+
+<section class="fleet" id="fleet"><div class="wrap"><div class="split">
+  <div>
+    <h2>Fleet I: ten Tesla robotaxis</h2>
+    <p class="sub" style="margin-bottom:20px">Robotaxi-spec Teslas running unsupervised Full Self-Driving, operated from a single secured depot in Orange County.</p>
+    <ul class="speclist">
+      <li><span><strong>Vehicle platform.</strong> Tesla Model Y, robotaxi configuration with FSD — the same platform Tesla operates in its own robotaxi network.</span></li>
+      <li><span><strong>Depot operations.</strong> Overnight Level 2 charging at off-peak rates, daily interior turnover cleaning, and scheduled deep details.</span></li>
+      <li><span><strong>Fleet care.</strong> Commercial autonomous-fleet insurance, telematics on every vehicle, and a two-person operations team for the whole fleet.</span></li>
+      <li><span><strong>Uptime target.</strong> 97% — vehicles rotate through charging and cleaning so the fleet never sleeps all at once.</span></li>
+    </ul>
+  </div>
+  <div class="carviz" aria-hidden="true">
+    <svg viewBox="0 0 380 200">
+      <ellipse cx="190" cy="168" rx="150" ry="10" fill="rgba(0,0,0,.35)"/>
+      <path d="M60 140c0-8 6-22 20-30 18-11 44-30 78-32 40-2 82 6 110 26 16 11 40 16 46 26 4 7 2 20-6 22-10 3-230 3-240 0-6-2-8-6-8-12z" fill="#e8ecf2"/>
+      <path d="M112 112c16-10 38-24 66-26 32-2 66 5 92 20l-22 12c-40 8-96 8-136-6z" fill="#0c1424" opacity=".85"/>
+      <circle cx="122" cy="152" r="20" fill="#0c1424"/><circle cx="122" cy="152" r="9" fill="#4b5a72"/>
+      <circle cx="268" cy="152" r="20" fill="#0c1424"/><circle cx="268" cy="152" r="9" fill="#4b5a72"/>
+      <rect x="290" y="122" width="22" height="5" rx="2.5" fill="#3987e5"/>
+      <rect x="66" y="126" width="18" height="4" rx="2" fill="#86b6ef"/>
+      <path d="M150 60l8-14M190 56v-16M230 60l-8-14" stroke="#3987e5" stroke-width="3" stroke-linecap="round" opacity=".8"/>
+    </svg>
+  </div>
+</div></div></section>
+
+<section id="service"><div class="wrap">
+  <h2>Service area</h2>
+  <p class="sub">Launching across central Orange County with dense short-hop demand and premium airport corridors, anchored by John Wayne Airport (SNA).</p>
+  <div class="chips">
+    <span class="chip">Irvine</span><span class="chip">Newport Beach</span><span class="chip">Costa Mesa</span>
+    <span class="chip">Santa Ana</span><span class="chip">Tustin</span><span class="chip">Anaheim</span>
+    <span class="chip">Orange</span><span class="chip">Huntington Beach</span><span class="chip">Laguna Beach</span>
+    <span class="chip">John Wayne Airport (SNA)</span><span class="chip">Disneyland Resort</span>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <div class="invest">
+    <div>
+      <h2>Fleet economics, in the open</h2>
+      <p>We published the entire Fleet I financial model — acquisition, insurance, power, cleaning, parking, staffing — with an interactive calculator so you can stress-test every assumption yourself.</p>
+      <p style="margin-top:24px"><a class="btn" href="/investors.html">Read the financial prospectus</a></p>
+    </div>
+    <div class="nums">
+      <div class="n"><div class="v">$595K</div><div class="l">Total capital, fully deployed</div></div>
+      <div class="n"><div class="v">10.2 months</div><div class="l">Modeled return of capital (base case)</div></div>
+      <div class="n"><div class="v">117%</div><div class="l">Annual cash-on-cash return thereafter</div></div>
+    </div>
+  </div>
+</div></section>
+
+<footer><div class="wrap">
+  <div>© 2026 OCcab. Orange County, California.</div>
+  <div><a href="/investors.html">Investors</a> · <a href="mailto:dave@rodecker.com">Contact</a></div>
+</div></footer>
+
+</body>
+</html>

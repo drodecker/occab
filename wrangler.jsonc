@@ -1,0 +1,10 @@
+{
+  // OCcab marketing site + investor prospectus — static assets on Cloudflare Workers.
+  // Deploy with: npx wrangler deploy
+  "name": "occab",
+  "compatibility_date": "2026-08-01",
+  "assets": {
+    "directory": "./public",
+    "not_found_handling": "404-page"
+  }
+}
