@@ -3,7 +3,7 @@
 Stack: **Cloudflare Pages** (static site) → **Cloudflare Worker** (form proxy) → **your NocoDB** (data) → webhooks to Slack/email.
 
 ```
-site/    → deploy to Cloudflare Pages (index.html + config.js)
+site/    → deploy to Cloudflare Pages (index.html + investors.html + config.js)
 worker/  → deploy with wrangler (worker.js + wrangler.toml)
 ```
 

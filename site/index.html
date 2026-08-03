@@ -10,6 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
 <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <style>
 :root{
   --bg:#0a0e16;
@@ -127,7 +128,7 @@ footer .fine{font-size:12px;color:#5b6880;line-height:1.7;max-width:980px}
   <div class="logo"><span class="oc">OC</span> <span class="cab">CAB</span><span class="dot">.</span></div>
   <div class="nav-links">
     <a href="#thesis">Thesis</a><a href="#assets">Assets</a><a href="#map-section">Coverage</a>
-    <a href="#financials">Financials</a><a href="#roadmap">Roadmap</a><a href="#connect">Connect</a>
+    <a href="/investors.html">Investors</a><a href="#roadmap">Roadmap</a><a href="#connect">Connect</a>
   </div>
   <a class="btn" href="#connect">Get in touch</a>
 </div></nav>
@@ -189,24 +190,17 @@ footer .fine{font-size:12px;color:#5b6880;line-height:1.7;max-width:980px}
   </div>
 </div></section>
 
-<!-- FINANCIALS -->
+<!-- INVESTOR TEASE -->
 <section id="financials" style="background:var(--bg-2)"><div class="wrap">
-  <span class="eyebrow">Financial Tease</span>
-  <h2>Pro-forma illustration — 10-vehicle unit economics</h2>
-  <table class="fin-table">
-    <tr><th>Line item</th><th>Basis</th><th>Annual</th></tr>
-    <tr><td>Gross rider income</td><td>10 vehicles × 245 paid mi/day × $1.00/mi × 365</td><td class="pos">$894,250</td></tr>
-    <tr><td>Tesla network split</td><td>25% platform commission</td><td class="neg">($223,560)</td></tr>
-    <tr><td>Net operating revenue</td><td>Inbound cashflow to operating LLC</td><td class="pos">$670,690</td></tr>
-    <tr><td>Operating expenses</td><td>Power, insurance, depot, resets/cleaning</td><td class="neg">($176,540)</td></tr>
-    <tr class="total"><td>EBITDA yield</td><td>Pre-tax operational cash flow — 73.6% of net revenue</td><td>$494,150</td></tr>
-  </table>
+  <span class="eyebrow">For Investors</span>
+  <h2>The economics, in the open</h2>
+  <p class="sub">We published the complete Fleet I pro-forma on a dedicated investor page: capital requirements, every operating cost itemized, the payback timeline under three scenarios, and an interactive calculator so you can stress-test each assumption yourself.</p>
   <div class="cards">
-    <div class="card"><span class="k">$355,000</span><h3>Initial capital / 10 units</h3><p>Fleet purchase, inductive charging, software integration, licensing &amp; reserves.</p></div>
-    <div class="card"><span class="k">9.5 mo</span><h3>Illustrative payback</h3><p>Fleet clears full risk exposure inside 10 months, funding Year-2 expansion from cash yield.</p></div>
-    <div class="card"><span class="k">Late 2026</span><h3>Target funding close</h3><p>Commitments taken now; close targeted concurrent with vehicle purchases.</p></div>
+    <div class="card"><h3>Itemized</h3><p>Fleet acquisition, inductive charging, insurance, power, cleaning, depot operations — every line stated, nothing hand-waved.</p></div>
+    <div class="card"><h3>Stress-testable</h3><p>Move utilization, rate per mile, network split, and insurance yourself and watch payback and ROI respond in real time.</p></div>
+    <div class="card"><h3>Scenario-bracketed</h3><p>Conservative, base, and aggressive cases — with the ramp-up months discounted, not ignored.</p></div>
   </div>
-  <div class="fin-note"><b style="color:var(--gold-2)">Illustrative model only.</b> Figures are a pro-forma illustration based on manufacturer-stated targets and assumptions, not operating results. A detailed balance sheet, 9-month projected P&amp;L showing break-even, and 2-year ROI scenarios are available under NDA to qualified accredited investors.</div>
+  <div style="margin-top:36px"><a class="btn solid" href="/investors.html">Read the investor prospectus</a></div>
 </div></section>
 
 <!-- ROADMAP -->
@@ -287,7 +281,7 @@ footer .fine{font-size:12px;color:#5b6880;line-height:1.7;max-width:980px}
       <div style="color:var(--muted);font-size:14px">Reimagine Your Ride.<br>investors@oc.cab · Orange County, CA</div>
     </div>
     <div class="nav-links" style="display:flex;flex-direction:column;gap:10px">
-      <a href="#thesis">Thesis</a><a href="#financials">Financials</a><a href="#connect">Connect</a>
+      <a href="#thesis">Thesis</a><a href="/investors.html">Investors</a><a href="#connect">Connect</a>
     </div>
   </div>
   <p class="fine">© <span id="yr"></span> OC Cab. All rights reserved. Tesla, Cybercab, and Robotaxi are trademarks of Tesla, Inc.; their use here is nominative and descriptive only. OC Cab has no partnership, agency, or allocation agreement with Tesla, Inc. and does not currently operate autonomous passenger service in California. All vehicle specifications, availability dates, pricing, and network terms referenced are manufacturer targets subject to change and outside OC Cab's control. Pro-forma financials are hypothetical illustrations, not projections of actual performance.</p>
@@ -322,16 +316,19 @@ Object.values(forms).forEach(form=>{
     form.querySelectorAll('select[multiple]').forEach(s=>{
       data[s.name]=[...s.selectedOptions].map(o=>o.value).join(', ');
     });
+    const turnstileToken = data['cf-turnstile-response'] || '';
+    delete data['cf-turnstile-response'];
     try{
       const res = await fetch(OCCAB_CONFIG.workerUrl + '/submit', {
         method:'POST',
         headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({table: form.dataset.table, data})
+        body: JSON.stringify({table: form.dataset.table, data, turnstileToken})
       });
       if(!res.ok) throw new Error(await res.text());
       msg.textContent='Received — we\'ll be in touch shortly.';
       msg.classList.add('ok');
       form.reset();
+      if(window.turnstile) turnstile.reset();
     }catch(err){
       msg.textContent='Something went wrong sending your form. Email us directly at investors@oc.cab.';
       msg.classList.add('err');
