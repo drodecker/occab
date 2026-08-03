@@ -4,7 +4,7 @@ compatibility_date = "2026-07-01"
 
 # Set non-secret vars here; secrets via `wrangler secret put`
 [vars]
-ALLOWED_ORIGIN = "https://oc.cab"
+ALLOWED_ORIGIN = "https://oc.cab, https://occab.rodecker.com"
 TABLE_INVESTORS = "mqi90dk7p4nlpf0"
 TABLE_PROPERTY  = "m2fsritrqpepcc2"
 TABLE_CAREERS   = "mewoa8u9qvjlsvb"

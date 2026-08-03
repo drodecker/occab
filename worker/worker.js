@@ -28,9 +28,18 @@ const FIELDS = {
   careers: ["role","name","email","phone","linkedin","other_profile","resume_url","notes"],
 };
 
-function cors(env) {
+function cors(request, env) {
+  const origin = request.headers.get("Origin");
+  const allowedOrigins = (env.ALLOWED_ORIGIN || "*").split(",").map(s => s.trim());
+  let allowOrigin = allowedOrigins[0] || "*";
+  if (origin && allowedOrigins.includes(origin)) {
+    allowOrigin = origin;
+  } else if (env.ALLOWED_ORIGIN === "*") {
+    allowOrigin = "*";
+  }
+
   return {
-    "Access-Control-Allow-Origin": env.ALLOWED_ORIGIN || "*",
+    "Access-Control-Allow-Origin": allowOrigin,
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
   };
@@ -38,7 +47,7 @@ function cors(env) {
 
 export default {
   async fetch(request, env) {
-    const headers = cors(env);
+    const headers = cors(request, env);
 
     if (request.method === "OPTIONS") return new Response(null, { headers });
 
