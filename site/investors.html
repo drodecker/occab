@@ -777,7 +777,9 @@ function hideTip() { tipEl.style.display = 'none'; }
       form.reset();
       resetTurnstile(form);
     } catch (err) {
-      msg.textContent = 'Something went wrong sending your form. Email us directly at investors@oc.cab.';
+      msg.textContent = /Bot check failed/i.test(err.message)
+        ? 'Bot check failed. Please refresh and try again.'
+        : 'Something went wrong sending your form. Email us directly at investors@oc.cab.';
       msg.classList.add('err');
       console.error(err);
     } finally {
