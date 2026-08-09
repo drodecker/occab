@@ -5,6 +5,6 @@ const OCCAB_CONFIG = {
   // Restrict it to your domain (oc.cab) in the token settings.
   mapboxToken: "pk.eyJ1IjoiZHJvZGVja2VyIiwiYSI6ImNtc2IwdWhrODE2NHYyd29kOWJlOGRyNDAifQ.WbkOzCrrYYGq9afmZ9kW4Q",
 
-  // Your deployed Cloudflare Worker base URL (no trailing slash), e.g. https://forms.oc.cab
-  workerUrl: "https://occab-forms.dave-73f.workers.dev"
+  // Submit through this Pages site; /functions/submit.js forwards to the Worker.
+  workerUrl: ""
 };
