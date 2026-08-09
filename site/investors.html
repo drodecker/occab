@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad&render=explicit" defer></script>
 <style>
 :root{
   --bg:#0a0e16;
@@ -717,6 +717,39 @@ function hideTip() { tipEl.style.display = 'none'; }
 /* ============ investor form → Worker → NocoDB ============ */
 (function () {
   const form = document.getElementById('form-investor');
+  const turnstileTokens = new WeakMap();
+  const turnstileWidgets = new WeakMap();
+
+  window.onTurnstileLoad = function () {
+    document.querySelectorAll('.cf-turnstile').forEach(el => {
+      const targetForm = el.closest('form');
+      if (!targetForm || !window.turnstile || turnstileWidgets.has(targetForm)) return;
+      const widgetId = turnstile.render(el, {
+        sitekey: el.dataset.sitekey,
+        theme: el.dataset.theme || 'auto',
+        callback: token => turnstileTokens.set(targetForm, token),
+        'expired-callback': () => turnstileTokens.delete(targetForm),
+        'error-callback': () => turnstileTokens.delete(targetForm),
+      });
+      turnstileWidgets.set(targetForm, widgetId);
+    });
+  };
+
+  function getTurnstileToken(targetForm) {
+    const field = targetForm.querySelector('[name="cf-turnstile-response"]');
+    const widgetId = turnstileWidgets.get(targetForm);
+    return (field && field.value) ||
+      turnstileTokens.get(targetForm) ||
+      (window.turnstile && widgetId !== undefined ? turnstile.getResponse(widgetId) : '') ||
+      '';
+  }
+
+  function resetTurnstile(targetForm) {
+    turnstileTokens.delete(targetForm);
+    const widgetId = turnstileWidgets.get(targetForm);
+    if (window.turnstile && widgetId !== undefined) turnstile.reset(widgetId);
+  }
+
   form.addEventListener('submit', async e => {
     e.preventDefault();
     const msg = form.querySelector('.form-msg');
@@ -724,8 +757,14 @@ function hideTip() { tipEl.style.display = 'none'; }
     msg.className = 'form-msg'; btn.disabled = true; btn.textContent = 'Sending…';
     const data = {};
     new FormData(form).forEach((v, k) => { data[k] = v; });
-    const turnstileToken = data['cf-turnstile-response'] || '';
+    const turnstileToken = data['cf-turnstile-response'] || getTurnstileToken(form);
     delete data['cf-turnstile-response'];
+    if (!turnstileToken) {
+      msg.textContent = 'Please complete the bot check and try again.';
+      msg.classList.add('err');
+      btn.disabled = false; btn.textContent = 'Register interest';
+      return;
+    }
     try {
       const res = await fetch(OCCAB_CONFIG.workerUrl + '/submit', {
         method: 'POST',
@@ -736,7 +775,7 @@ function hideTip() { tipEl.style.display = 'none'; }
       msg.textContent = 'Received — we\'ll be in touch with the data room shortly.';
       msg.classList.add('ok');
       form.reset();
-      if (window.turnstile) turnstile.reset();
+      resetTurnstile(form);
     } catch (err) {
       msg.textContent = 'Something went wrong sending your form. Email us directly at investors@oc.cab.';
       msg.classList.add('err');

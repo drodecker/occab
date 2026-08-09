@@ -10,7 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
 <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad&render=explicit" defer></script>
 <style>
 :root{
   --bg:#0a0e16;
@@ -301,6 +301,39 @@ function showTab(name){
 tabs.forEach(t=>t.addEventListener('click',()=>showTab(t.dataset.tab)));
 document.querySelectorAll('[data-tab-link]').forEach(a=>a.addEventListener('click',()=>showTab(a.dataset.tabLink)));
 
+const turnstileTokens = new WeakMap();
+const turnstileWidgets = new WeakMap();
+
+window.onTurnstileLoad = function(){
+  document.querySelectorAll('.cf-turnstile').forEach(el=>{
+    const form = el.closest('form');
+    if(!form || !window.turnstile || turnstileWidgets.has(form)) return;
+    const widgetId = turnstile.render(el, {
+      sitekey: el.dataset.sitekey,
+      theme: el.dataset.theme || 'auto',
+      callback: token=>turnstileTokens.set(form, token),
+      'expired-callback': ()=>turnstileTokens.delete(form),
+      'error-callback': ()=>turnstileTokens.delete(form)
+    });
+    turnstileWidgets.set(form, widgetId);
+  });
+};
+
+function getTurnstileToken(form){
+  const field = form.querySelector('[name="cf-turnstile-response"]');
+  const widgetId = turnstileWidgets.get(form);
+  return (field && field.value) ||
+    turnstileTokens.get(form) ||
+    (window.turnstile && widgetId !== undefined ? turnstile.getResponse(widgetId) : '') ||
+    '';
+}
+
+function resetTurnstile(form){
+  turnstileTokens.delete(form);
+  const widgetId = turnstileWidgets.get(form);
+  if(window.turnstile && widgetId !== undefined) turnstile.reset(widgetId);
+}
+
 /* ---------- Form submit → Cloudflare Worker → NocoDB ---------- */
 Object.values(forms).forEach(form=>{
   form.addEventListener('submit', async e=>{
@@ -316,8 +349,15 @@ Object.values(forms).forEach(form=>{
     form.querySelectorAll('select[multiple]').forEach(s=>{
       data[s.name]=[...s.selectedOptions].map(o=>o.value).join(', ');
     });
-    const turnstileToken = data['cf-turnstile-response'] || '';
+    const turnstileToken = data['cf-turnstile-response'] || getTurnstileToken(form);
     delete data['cf-turnstile-response'];
+    if(!turnstileToken){
+      msg.textContent='Please complete the bot check and try again.';
+      msg.classList.add('err');
+      btn.disabled=false;
+      btn.textContent = form.id==='form-investor'?'Register interest':form.id==='form-property'?'Submit property':'Apply';
+      return;
+    }
     try{
       const res = await fetch(OCCAB_CONFIG.workerUrl + '/submit', {
         method:'POST',
@@ -328,7 +368,7 @@ Object.values(forms).forEach(form=>{
       msg.textContent='Received — we\'ll be in touch shortly.';
       msg.classList.add('ok');
       form.reset();
-      if(window.turnstile) turnstile.reset();
+      resetTurnstile(form);
     }catch(err){
       msg.textContent='Something went wrong sending your form. Email us directly at investors@oc.cab.';
       msg.classList.add('err');
